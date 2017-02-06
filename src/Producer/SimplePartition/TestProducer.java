@@ -1,4 +1,4 @@
-package ProducerWithSimplePartition;
+package Producer.SimplePartition;
 
 import java.util.*;
 import kafka.javaapi.producer.Producer;

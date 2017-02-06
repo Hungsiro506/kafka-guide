@@ -1,4 +1,4 @@
-package ProducerWithSimplePartition;
+package Producer.SimplePartition;
 import kafka.producer.Partitioner;
 import kafka.utils.VerifiableProperties;
 public class SimplePartitioner implements Partitioner{

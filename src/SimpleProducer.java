@@ -1,18 +1,21 @@
 //import util.properties packages
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 //import simple producer packages
 import org.apache.kafka.clients.producer.Producer;
-
+import org.apache.kafka.clients.producer.Callback;
 //import KafkaProducer packages
 import org.apache.kafka.clients.producer.KafkaProducer;
 
 //import ProducerRecord packages
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 
 //Create java class named “SimpleProducer”
 public class SimpleProducer {
-   
+	
+   private static  Producer<String, String> producer;
    public static void main(String[] args) throws Exception{
       
       // Check arguments length value
@@ -46,18 +49,62 @@ public class SimpleProducer {
          
       props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
       
-      Producer<String, String> producer = new KafkaProducer
+      producer = new KafkaProducer
          <String, String>(props);
             
       //for(int i = 0; i < 10; i++)
-      int i =0;
-      while(true){
-    	  producer.send(new ProducerRecord<String, String>(topicName, 
-            Integer.toString(i), Integer.toString(i)));
-          System.out.println("Message sent successfully : " + i);
-          i++;
-      }
+
+      fireAndForgetSend(topicName);
       
-      
+   }
+   private static void fireAndForgetSend(String topicName){
+	   System.out.println("  Fire and forget sending a message ");
+	   int i =0;
+	      while(true){
+	    	  producer.send(new ProducerRecord<String, String>(topicName, 
+	            Integer.toString(i), Integer.toString(i)));
+	          System.out.println("Message sent successfully : " + i);
+	          i++;
+	      }
+   }
+   private static void synchronousSend(String topicName){
+	   System.out.println("Synchronous sending a message  ");
+	   int i  = 0;
+	   while(true){
+		   try {
+			producer.send(new ProducerRecord<String,String>(topicName,
+					   Integer.toString(i),Integer.toString(i))).get();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			if(e !=  null){
+			e.printStackTrace();}
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			if(e !=  null){
+				e.printStackTrace();}
+		}
+		   
+	   }
+   }
+   private static  void asynchronoudSend(String topicName){
+	   System.out.println("Asynchronous sending   a  message");
+		   int i  = 0;
+		   while(true){  
+				producer.send(new ProducerRecord<String,String>(topicName,
+						   Integer.toString(i),Integer.toString(i)),new DemoProducerCallBack());
+		   }
+   }
+   private static class DemoProducerCallBack implements Callback{
+	@Override
+	public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+		// TODO Auto-generated method stub
+		if( e!= null ){
+			e.printStackTrace();
+		}
+		else{
+			System.out.println("Callback return a RecordMetadata Object at:" + recordMetadata.timestamp());
+		}
+	}
+	   
    }
 }
