@@ -43,6 +43,7 @@ public class CustomerSerializer implements Serializer<Customer> {
 				/*
 				 * 
 				 */
+				
 				if(data.getName() != null){
 					serializedName = data.getName().getBytes("UTF-8");
 					stringSize = serializedName.length;
